@@ -1,0 +1,7 @@
+[package]
+name = "bitrusty"
+version = "0.1.0"
+authors = ["Yiping Deng <yiping.deng.98@gmail.com>"]
+edition = "2018"
+
+[dependencies]
