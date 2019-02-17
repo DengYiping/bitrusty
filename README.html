@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="'en'" xml:lang="'en'">
+<head>
+<!-- 2019-02-17 Sun 03:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bitrusty - Building a bittorrent client on Rust</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Yiping Deng" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Bitrusty - Building a bittorrent client on Rust</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf3f9654">1. Introduction</a>
+<ul>
+<li><a href="#org0fc6908">1.1. Bittorrent Protocol</a></li>
+<li><a href="#org1cfcf2f">1.2. References</a></li>
+</ul>
+</li>
+<li><a href="#org52d2d74">2. File handling</a>
+<ul>
+<li><a href="#org15acdb1">2.1. Torrent File</a></li>
+<li><a href="#org7e183b2">2.2. Parsing Torrent File</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf3f9654" class="outline-2">
+<h2 id="orgf3f9654"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org0fc6908" class="outline-3">
+<h3 id="org0fc6908"><span class="section-number-3">1.1</span> Bittorrent Protocol</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+There are 2 main part of the protocol
+</p>
+<ol class="org-ol">
+<li>Sending a request<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup> with info of the torrent to a tracker, and the tracker will respond you with a list of peers(clients).</li>
+<li>After obtaining the addresses and the port numbers of the peers, you connect to them and start downloading. (with exchagne in info)</li>
+</ol>
+
+
+<div class="figure">
+<p><img src="Introduction/bittorrent_2019-02-16_17-33-27.gif" alt="bittorrent_2019-02-16_17-33-27.gif" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1cfcf2f" class="outline-3">
+<h3 id="org1cfcf2f"><span class="section-number-3">1.2</span> References</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li><a href="https://wiki.theory.org/index.php/BitTorrentSpecification">https://wiki.theory.org/index.php/BitTorrentSpecification</a> unofficial bittorrent specification</li>
+<li><a href="https://www.bittorrent.org/beps/bep_0015.html">https://www.bittorrent.org/beps/bep_0015.html</a> how to form a request to a tracker that uses udp url</li>
+<li><a href="https://www.morehawes.co.uk/the-bittorrent-protocol">https://www.morehawes.co.uk/the-bittorrent-protocol</a> blog post on bittorrent protocol overall</li>
+<li><a href="http://www.kristenwidman.com/blog/33/how-to-write-a-bittorrent-client-part-1">http://www.kristenwidman.com/blog/33/how-to-write-a-bittorrent-client-part-1</a> explanation of bittorrent</li>
+<li><a href="http://www.bittorrent.org/beps/bep_0020.html">http://www.bittorrent.org/beps/bep_0020.html</a> peer id convention</li>
+<li><a href="https://www.seanjoflynn.com/research/bittorrent.html#bencoding-decoding">https://www.seanjoflynn.com/research/bittorrent.html#bencoding-decoding</a> implementation in C#</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org52d2d74" class="outline-2">
+<h2 id="org52d2d74"><span class="section-number-2">2</span> File handling</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org15acdb1" class="outline-3">
+<h3 id="org15acdb1"><span class="section-number-3">2.1</span> Torrent File</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+According to the specification, a torrent file essentially is a bencode encoded file, we can use a library in Rust to
+parse this file and read the formatted content into our memory.
+</p>
+
+<p>
+We first add bencode to the dependency, then we try out to decode our torrent file.
+We use the specification in the <a href="https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding">wiki theory</a> to help us decode.
+</p>
+
+<p>
+Although ther is a announce and announce list, for the first version we just use a single tracker(naming the tracker in
+the announce) for our purpose.
+</p>
+
+<p>
+The following field will be extracted, and info<sub>hash</sub> will be calculated using the torrent
+</p>
+<ul class="org-ul">
+<li>announce</li>
+<li>info</li>
+<li>info<sub>hash</sub>: calculated by sha1 hash the bencoded info part in the metadata, stored as a byte array</li>
+<li>created<sub>by</sub></li>
+</ul>
+
+<p>
+and in the info, we have
+</p>
+<ul class="org-ul">
+<li>piece length</li>
+<li>pieces</li>
+<li>num<sub>pieces</sub></li>
+<li>name</li>
+<li>length</li>
+</ul>
+
+<p>
+To have insights into the file, I decided to write a python script to format the bencoded file.
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #4f97d7; font-weight: bold; font-style: italic;">import</span> bencode
+
+<span style="color: #7590db;">f</span> = <span style="color: #4f97d7;">open</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'test.torrent'</span>, <span style="color: #2d9574;">'r'</span><span style="color: #4f97d7;">)</span>
+<span style="color: #7590db;">strn</span> = f.read<span style="color: #4f97d7;">()</span>
+<span style="color: #7590db;">decoded</span> = bencode.bdecode<span style="color: #4f97d7;">(</span>strn<span style="color: #4f97d7;">)</span>
+f.close<span style="color: #4f97d7;">()</span>
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">print</span><span style="color: #4f97d7;">(</span>decoded<span style="color: #4f97d7;">)</span>
+</pre>
+</div>
+
+<p>
+To suppress the not useful 'pieces' part from the printing, we can change the script a bit
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #4f97d7; font-weight: bold; font-style: italic;">import</span> bencode
+
+<span style="color: #7590db;">f</span> = <span style="color: #4f97d7;">open</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">'test.torrent'</span>, <span style="color: #2d9574;">'r'</span><span style="color: #4f97d7;">)</span>
+<span style="color: #7590db;">strn</span> = f.read<span style="color: #4f97d7;">()</span>
+<span style="color: #7590db;">decoded</span> = bencode.bdecode<span style="color: #4f97d7;">(</span>strn<span style="color: #4f97d7;">)</span>
+f.close<span style="color: #4f97d7;">()</span>
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">del</span> decoded<span style="color: #4f97d7;">[</span><span style="color: #2d9574;">'info'</span><span style="color: #4f97d7;">][</span><span style="color: #2d9574;">'pieces'</span><span style="color: #4f97d7;">]</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">print</span><span style="color: #4f97d7;">(</span>decoded<span style="color: #4f97d7;">)</span>
+
+</pre>
+</div>
+
+<p>
+For the simplicity of this project, I decided not to implement the multi-announce function for now. (It is durable, but it
+involves in several boilerplate code, so I don't think it is a good idea)
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7e183b2" class="outline-3">
+<h3 id="org7e183b2"><span class="section-number-3">2.2</span> Parsing Torrent File</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+We language like Rust, many libraries are avaiable and you should try to use those libraries. It reduces the chance of error,
+and it makes coding complex protocol a bit easier.
+</p>
+
+<p>
+We use crpto-rust for our hashing, and we use bencode for handling bencode.
+</p>
+
+<p>
+In the Cargo.toml file, we write
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rust"><span style="color: #4f97d7;">[</span>package<span style="color: #4f97d7;">]</span>
+name = <span style="color: #2d9574;">"bitrusty"</span>
+version = <span style="color: #2d9574;">"0.1.0"</span>
+authors = <span style="color: #4f97d7;">[</span><span style="color: #2d9574;">"Yiping Deng <a href="mailto:yiping.deng.98%40gmail.com">&lt;yiping.deng.98@gmail.com&gt;</a>"</span><span style="color: #4f97d7;">]</span>
+edition = <span style="color: #2d9574;">"2018"</span>
+
+<span style="color: #4f97d7;">[</span>dependencies<span style="color: #4f97d7;">]</span>
+bencode = <span style="color: #2d9574;">"0.1.16"</span>
+byteorder = <span style="color: #2d9574;">"1.3.1"</span>
+serde = <span style="color: #2d9574;">"1.0.88"</span>
+rust-crypto = <span style="color: #2d9574;">"0.2.36"</span>
+rand = <span style="color: #2d9574;">"0.6.5"</span>
+url = <span style="color: #2d9574;">"1.7.2"</span>
+</pre>
+</div>
+
+<p>
+Despite the fact that we uses library, bencode library in Rust is not well structured. We need to write several helper functions.
+</p>
+
+<p>
+In decodeutil.rs, we write the following macros and functions
+</p>
+<div class="org-src-container">
+<pre class="src src-rust"><span style="color: #bc6ec5;">#!</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_use</span><span style="color: #4f97d7;">]</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">use</span> <span style="color: #a45bad;">bencode</span>;
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">use</span> <span style="color: #a45bad;">std</span>::<span style="color: #4f97d7;">{</span>convert, io<span style="color: #4f97d7;">}</span>;
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">use</span> <span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">VecFromBencodeError</span>;
+
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_field_with_default <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr, <span style="color: #7590db;">$default</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #4f97d7; font-weight: bold; font-style: italic;">match</span> $m.get<span style="color: #2d9574;">(</span>&amp;<span style="color: #ce537a; font-weight: bold;">ByteString</span>::from_str<span style="color: #67b11d;">(</span>$field<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #ce537a; font-weight: bold;">Some</span><span style="color: #67b11d;">(</span>a<span style="color: #67b11d;">)</span> =&gt; <span style="color: #67b11d;">(</span><span style="color: #ce537a; font-weight: bold;">FromBencode</span>::from_bencode<span style="color: #b1951d;">(</span>a<span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span><span style="color: #4f97d7; font-weight: bold;">?</span>,
+            <span style="color: #ce537a; font-weight: bold;">None</span> =&gt; $default
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_field <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #bc6ec5;">get_field_with_default!</span><span style="color: #2d9574;">(</span>$m, $field, <span style="color: #4f97d7; font-weight: bold; font-style: italic;">return</span> <span style="color: #ce537a; font-weight: bold;">Err</span><span style="color: #67b11d;">(</span><span style="color: #a45bad;">decodeutil</span>::<span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">DoesntContain</span><span style="color: #b1951d;">(</span>$field<span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_optional_field <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #bc6ec5;">get_field_with_default!</span><span style="color: #2d9574;">(</span>$m, $field, <span style="color: #ce537a; font-weight: bold;">None</span><span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_raw_field <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #4f97d7; font-weight: bold; font-style: italic;">match</span> $m.get<span style="color: #2d9574;">(</span>&amp;<span style="color: #ce537a; font-weight: bold;">ByteString</span>::from_str<span style="color: #67b11d;">(</span>$field<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #ce537a; font-weight: bold;">Some</span><span style="color: #67b11d;">(</span>a<span style="color: #67b11d;">)</span> =&gt; a,
+            <span style="color: #ce537a; font-weight: bold;">None</span> =&gt; <span style="color: #4f97d7; font-weight: bold; font-style: italic;">return</span> <span style="color: #ce537a; font-weight: bold;">Err</span><span style="color: #67b11d;">(</span><span style="color: #a45bad;">decodeutil</span>::<span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">DoesntContain</span><span style="color: #b1951d;">(</span>$field<span style="color: #b1951d;">)</span><span style="color: #67b11d;">)</span>
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_field_as_bencoded_bytes <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #bc6ec5;">get_raw_field!</span><span style="color: #2d9574;">(</span>$m, $field<span style="color: #2d9574;">)</span>.to_bytes<span style="color: #2d9574;">()</span><span style="color: #4f97d7; font-weight: bold;">?</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">macro_export</span><span style="color: #4f97d7;">]</span>
+<span style="color: #bc6ec5;">macro_rules!</span> get_field_as_bytes <span style="color: #4f97d7;">{</span>
+    <span style="color: #bc6ec5;">(</span><span style="color: #7590db;">$m</span>:expr, <span style="color: #7590db;">$field</span>:expr<span style="color: #bc6ec5;">)</span> =&gt; <span style="color: #bc6ec5;">(</span>
+        <span style="color: #4f97d7; font-weight: bold; font-style: italic;">match</span> <span style="color: #bc6ec5;">get_raw_field!</span><span style="color: #2d9574;">(</span>$m, $field<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            &amp;<span style="color: #ce537a; font-weight: bold;">Bencode</span>::<span style="color: #ce537a; font-weight: bold;">ByteString</span><span style="color: #67b11d;">(</span><span style="color: #4f97d7; font-weight: bold; font-style: italic;">ref</span> <span style="color: #7590db;">v</span><span style="color: #67b11d;">)</span> =&gt; v.clone<span style="color: #67b11d;">()</span>,
+            _ =&gt; <span style="color: #4f97d7; font-weight: bold; font-style: italic;">return</span> <span style="color: #ce537a; font-weight: bold;">Err</span><span style="color: #67b11d;">(</span><span style="color: #a45bad;">decodeutil</span>::<span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">NotAByteString</span><span style="color: #67b11d;">)</span>
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">)</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #bc6ec5;">#</span><span style="color: #4f97d7;">[</span><span style="color: #bc6ec5;">derive</span><span style="color: #bc6ec5;">(</span><span style="color: #bc6ec5;">Debug</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">]</span>
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">pub</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">enum</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #ce537a; font-weight: bold;">IoError</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">)</span>,
+    <span style="color: #ce537a; font-weight: bold;">DecodingError</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">bencode</span>::<span style="color: #a45bad;">streaming</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">)</span>,
+    <span style="color: #ce537a; font-weight: bold;">NotADict</span>,
+    <span style="color: #ce537a; font-weight: bold;">NotAByteString</span>,
+    <span style="color: #ce537a; font-weight: bold;">DoesntContain</span><span style="color: #bc6ec5;">(</span>&amp;'<span style="color: #4f97d7; font-weight: bold; font-style: italic;">static</span> <span style="color: #ce537a; font-weight: bold;">str</span><span style="color: #bc6ec5;">)</span>,
+    <span style="color: #ce537a; font-weight: bold;">NotANumber</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">NumFromBencodeError</span><span style="color: #bc6ec5;">)</span>,
+    <span style="color: #ce537a; font-weight: bold;">NotAString</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">StringFromBencodeError</span><span style="color: #bc6ec5;">)</span>,
+    <span style="color: #ce537a; font-weight: bold;">NotAVec</span>
+<span style="color: #4f97d7;">}</span>
+
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">IoError</span><span style="color: #2d9574;">(</span>err<span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Self</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #4f97d7;">println!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"error detail = </span><span style="color: #2d9574; font-style: italic;">{:?}</span><span style="color: #2d9574;">"</span>, err<span style="color: #2d9574;">)</span>;
+        <span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">Error</span>::new<span style="color: #2d9574;">(</span><span style="color: #a45bad;">io</span>::<span style="color: #ce537a; font-weight: bold;">ErrorKind</span>::<span style="color: #ce537a; font-weight: bold;">InvalidData</span>, <span style="color: #2d9574;">"invalid data to use bencode"</span><span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #a45bad;">streaming</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #a45bad;">bencode</span>::<span style="color: #a45bad;">streaming</span>::<span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">DecodingError</span><span style="color: #2d9574;">(</span>err<span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">NumFromBencodeError</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">NumFromBencodeError</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">NotANumber</span><span style="color: #2d9574;">(</span>err<span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">StringFromBencodeError</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">StringFromBencodeError</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">NotAString</span><span style="color: #2d9574;">(</span>err<span style="color: #2d9574;">)</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">VecFromBencodeError</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #ce537a; font-weight: bold;">VecFromBencodeError</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Error</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Self</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">NotAVec</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold; font-style: italic;">impl</span> <span style="color: #a45bad;">convert</span>::<span style="color: #ce537a; font-weight: bold;">From</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">VecFromBencodeError</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">StringFromBencodeError</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #4f97d7; font-weight: bold; font-style: italic;">for</span> <span style="color: #ce537a; font-weight: bold;">Error</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold; font-style: italic;">fn</span> <span style="color: #bc6ec5; font-weight: bold;">from</span><span style="color: #bc6ec5;">(</span><span style="color: #7590db;">err</span>: <span style="color: #ce537a; font-weight: bold;">VecFromBencodeError</span><span style="color: #2d9574;">&lt;</span><span style="color: #a45bad;">bencode</span>::<span style="color: #ce537a; font-weight: bold;">StringFromBencodeError</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">)</span> -&gt; <span style="color: #ce537a; font-weight: bold;">Self</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #ce537a; font-weight: bold;">Error</span>::<span style="color: #ce537a; font-weight: bold;">NotAVec</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+Most of the macro parts are from rusty-torrent with miner modification. However, rusty-torrent is not maintained anymore, please be
+careful!
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+This request will also add you to the peer list of the corresponding torrent
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Yiping Deng</p>
+<p class="date">Created: 2019-02-17 Sun 03:20</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
